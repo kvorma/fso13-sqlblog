@@ -1,0 +1,26 @@
+{
+  "name": "fso13-sqlblog",
+  "version": "1.0.0",
+  "description": "Full Stack Open Part 13",
+  "homepage": "https://github.com/kvorma/fso13-sqlblog#readme",
+  "bugs": {
+    "url": "https://github.com/kvorma/fso13-sqlblog/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kvorma/fso13-sqlblog.git"
+  },
+  "license": "MIT",
+  "author": "Kai Vorma",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.52.0",
+    "express": "^5.2.1",
+    "pg": "^8.18.0",
+    "sequelize": "^6.37.7"
+  }
+}
