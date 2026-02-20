@@ -19,14 +19,16 @@ const unknownEndpoint = (request, response) => {
 }
 
 const errorHandler = (error, request, response, next) => {
-  logger.debug('errorHandler:', error.name)
-  console.log(error.message)
+  logger.debug('errorHandler:', error.name, ' : ', error.message)
   switch (error.name) {
     case 'SequelizeValidationError': {
       return response.status(400)
         .json(error.errors.map(e => ({ message: e.message, type: e.type })))
     }
     case 'SequelizeDatabaseError':
+    case 'SequelizeUniqueConstraintError':
+      error.message += ': field must be unique'
+    // eslint-disable-next-line no-fallthrough
     case 'SequelizeConnectionError': {
       return response.status(400).json({ error: error.message })
     }
@@ -69,6 +71,7 @@ const tokenExtractor = (req, res, next) => {
   } else {
     return res.status(401).json({ error: 'token missing' })
   }
+  logger.debug2('tokenExtractor: passed')
   next()
 }
 

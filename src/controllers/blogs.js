@@ -1,7 +1,8 @@
 const router = require('express').Router()
-const { Op } = require('sequelize')
+//const { Op } = require('sequelize')
 const { tokenExtractor } = require('../util/middleware')
 const { Blog, User } = require('../models')
+const logger = require('../util/logger')
 
 const BlogView = {
   attributes: { exclude: ['userId'] },
@@ -11,10 +12,29 @@ const BlogView = {
   }
 }
 
+const blogFinder = async (req, res, next) => {
+  logger.debug2('blogFinder:', req.params.id)
+  try {
+    const blog = await Blog.findByPk(req.params.id)
+    if (blog) {
+      logger.debug2('blogFinder:', JSON.stringify(blog, null, 2))
+      req.blogEntry = blog
+      next()
+    } else {
+      res.status(404).end()
+    }
+  } catch (e) {
+    next(e)
+  }
+}
+//  Get All (anyone)
+
 router.get('/', async (req, res) => {
   const blogs = await Blog.findAll(BlogView)
   res.json(blogs)
 })
+
+// Add new (logged in)
 
 router.post('/', tokenExtractor, async (req, res, next) => {
   try {
@@ -29,41 +49,38 @@ router.post('/', tokenExtractor, async (req, res, next) => {
   }
 })
 
-const blogFinder = async (req, res, next) => {
-  req.blogEntry = await Blog.findByPk(req.params.id)
-  next()
-}
+// Delete a blog (logged in, blogOwner)
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', tokenExtractor, blogFinder, async (req, res) => {
+  if (req.blogEntry.userId != req.decodedToken.id) {
+    res.status(403).end()
+    return
+  }
   const gone = await Blog.destroy({
     where: {
-      id: {
-        [Op.eq]: Number(req.params.id),
-      },
+      id: Number(req.params.id),
     },
   });
   if (gone) {
-    res.json(gone)
+    res.json({ deleted: gone })
   } else {
     res.status(404).end()
   }
 })
 
+// Update likes (anyone)
+
 router.put('/:id', blogFinder, async (req, res, next) => {
-  if (req.blogEntry) {
-    if (req.body.likes !== undefined) {
-      req.blogEntry.likes = req.body.likes
-      try {
-        await req.blogEntry.save()
-        res.json(req.note)
-      } catch (e) {
-        next(e)
-      }
-    } else {
-      res.status(400).end()
+  if (req.body.likes !== undefined) {
+    req.blogEntry.likes = req.body.likes
+    try {
+      await req.blogEntry.save()
+      res.json(req.note)
+    } catch (e) {
+      next(e)
     }
   } else {
-    res.status(404).end()
+    res.status(400).end()
   }
 })
 

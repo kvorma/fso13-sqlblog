@@ -4,13 +4,12 @@ const dx = require('@dotenvx/dotenvx')
 const test = process.env.NODE_ENV === 'test'
 const dev = process.env.NODE_ENV === 'development'
 const db = test ? 'blog_test' : 'blog_db'
-
 if (process.env.GITHUB_ACTIONS) {
   dx.config({ path: '.env.github', quiet: true })
 } else if (dev || test) {
-  dx.config({ path: '.env.dev', quiet: true })
+  dx.config({ path: '.env.dev' })
 } else {
-  dx.config({ path: '.env', quiet: true })
+  dx.config({ path: '.env' })
 }
 
 const PORT = test ? process.env.PORT_TEST : process.env.PORT

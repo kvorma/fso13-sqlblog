@@ -1,11 +1,10 @@
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
-const { Op } = require('sequelize')
+//const { Op } = require('sequelize')
 const { User, Blog } = require('../models')
 const logger = require('../util/logger')
 const { tokenExtractor } = require('../util/middleware')
 
-const Accepting = ['username', 'realname', 'pwHash']
 const Returning = ['username', 'realname', 'id']
 const UserView = {
   attributes: { exclude: ['pwHash'] },
@@ -15,38 +14,37 @@ const UserView = {
   }
 }
 
+// Get All (anyone)
+
 router.get('/', async (request, response) => {
   const users = await User.findAll(UserView)
   response.json(users)
 })
 
-// accepts single user or list of users for quick db initialization.
-// stops at first error in the latter case
+// Add new user (logged in)
 
-router.post('/', async (request, response, next) => {
-  const newUsers = []
-  const users = Array.isArray(request.body)
-    ? request.body
-    : [request.body]
-
-  for (let u of users) {
-    const { username, realname, password } = u
-    const saltRounds = 10
-    const pwHash = await bcrypt.hash(password, saltRounds)
-    newUsers.push({
-      username,
-      realname,
-      pwHash
-    })
+router.post('/', tokenExtractor, async (request, response, next) => {
+  const { username, realname, password } = request.body
+  const saltRounds = 10
+  const pwHash = await bcrypt.hash(password, saltRounds)
+  const newUser = {
+    username,
+    realname,
+    pwHash
   }
-  logger.debug('Adding new users:', newUsers)
+  logger.debug('Adding new user:', newUser)
   try {
-    const savedUsers = await User.bulkCreate(newUsers, { fields: Accepting, returning: Returning })
-    response.status(201).json(savedUsers)
+    const savedUser = await User.create(newUser, { returning: Returning })
+
+    response.status(201).json({
+      id: savedUser.id,
+    })
   } catch (e) {
     next(e)
   }
 })
+
+// get single user (anyone)
 
 router.get('/:id', async (req, res, next) => {
   try {
@@ -61,13 +59,13 @@ router.get('/:id', async (req, res, next) => {
   }
 })
 
+// Change username (logged in)
+
 router.put('/:username', tokenExtractor, async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: {
-        username: {
-          [Op.eq]: req.params.username,
-        },
+        username: req.params.username,
       },
     });
     logger.debug('PUT:user:', req.params.username, req.body)
@@ -91,6 +89,5 @@ router.put('/:username', tokenExtractor, async (req, res, next) => {
     next(e)
   }
 })
-
 
 module.exports = router

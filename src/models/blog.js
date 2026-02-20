@@ -18,6 +18,7 @@ Blog.init(
     url: {
       type: DataTypes.TEXT,
       allowNull: false,
+      validate: { isUrl: { msg: 'Url must be a valid http Url!' } }
     },
     title: {
       type: DataTypes.TEXT,
