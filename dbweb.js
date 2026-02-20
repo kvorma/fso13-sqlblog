@@ -10,7 +10,7 @@ class Blog extends Model { }
 
 Blog.init(
   {
-    blogId: {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -61,7 +61,7 @@ app.delete('/api/blogs/:id', async (req, res) => {
   console.log('DELETE:', req.params.id)
   const gone = await Blog.destroy({
     where: {
-      blogId: {
+      id: {
         [Op.eq]: Number(req.params.id),
       },
     },
