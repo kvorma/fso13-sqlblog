@@ -1,0 +1,17 @@
+[
+  {
+    "username": "root",
+    "realname": "Super User",
+    "pwHash": "$2b$10$cSXEEMsqTmsyX6ryeLgWPeTVjnw3xKIz4EKzWDMo9nIdcQSs.CQ3u"
+  },
+  {
+    "username": "mluukkai",
+    "realname": "Matti Luukkainen",
+    "pwHash": "$2b$10$TK3zEC3k.Bxs/5vr3Sf9..B0evmR2etjnqgiBaYOygBCRFdK5/S/W"
+  },
+  {
+    "username": "vode",
+    "realname": "Vode Vorma",
+    "pwHash": "$2b$10$80M5LM6EcNrIpPKMJZnb.uzOFv4rxZB2lZV9iGg6fuVHuUyPgCE02"
+  }
+]

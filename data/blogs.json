@@ -4,6 +4,7 @@
     "author": "Michael Chan",
     "url": "https://reactpatterns.com/",
     "likes": 7,
+    "Year": 2015,
     "userId": 1,
     "comments": [
       "awesome",
@@ -15,6 +16,7 @@
     "author": "Edsger W. Dijkstra",
     "url": "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
     "likes": 5,
+    "Year": 1995,
     "userId": 3,
     "comments": [
       "Really?",
@@ -26,6 +28,7 @@
     "author": "Edsger W. Dijkstra",
     "url": "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
     "likes": 12,
+    "Year": 2000,
     "userId": 1,
     "comments": []
   },
@@ -34,6 +37,7 @@
     "author": "Robert C. Martin",
     "url": "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
     "likes": 10,
+    "Year": 2017,
     "userId": 2,
     "comments": [
       "intriguing.."
@@ -44,6 +48,7 @@
     "author": "Robert C. Martin",
     "url": "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
     "likes": 0,
+    "Year": 2017,
     "userId": 2,
     "comments": [
       "agree",
