@@ -1,5 +1,3 @@
-require('@dotenvx/dotenvx').config({ quiet: true })
-
 const dx = require('@dotenvx/dotenvx')
 const test = process.env.NODE_ENV === 'test'
 const dev = process.env.NODE_ENV === 'development'

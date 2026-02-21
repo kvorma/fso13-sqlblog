@@ -1,5 +1,6 @@
 const router = require('express').Router()
-//const { Op } = require('sequelize')
+//const qs = require('qs)')
+const { Op } = require('sequelize')
 const { tokenExtractor } = require('../util/middleware')
 const { Blog, User } = require('../models')
 const logger = require('../util/logger')
@@ -29,9 +30,30 @@ const blogFinder = async (req, res, next) => {
 }
 //  Get All (anyone)
 
-router.get('/', async (req, res) => {
-  const blogs = await Blog.findAll(BlogView)
-  res.json(blogs)
+router.get('/', async (req, res, next) => {
+  let where = {}
+  const orderBy = {
+    order: [['likes', 'DESC']]
+  }
+  const search = req?.query?.search || null
+  if (search) {
+    where = {
+      [Op.or]: [
+        { title: { [Op.substring]: search } },
+        { author: { [Op.substring]: search } }
+      ]
+    }
+  }
+  try {
+    const blogs = await Blog.findAll({
+      ...BlogView,
+      where,
+      ...orderBy
+    })
+    res.json(blogs)
+  } catch (e) {
+    next(e)
+  }
 })
 
 // Add new (logged in)
