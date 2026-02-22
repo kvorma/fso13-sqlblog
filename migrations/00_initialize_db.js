@@ -26,12 +26,10 @@ module.exports = {
       },
       created_at: {
         type: DataTypes.DATE,
-        //defaultValue: Sequelize.fn('NOW'),
         allowNull: false
       },
       updated_at: {
         type: DataTypes.DATE,
-        //defaultValue: Sequelize.fn('NOW'),
         allowNull: false
       }
     })
@@ -56,12 +54,10 @@ module.exports = {
       },
       created_at: {
         type: DataTypes.DATE,
-        //defaultValue: Sequelize.fn('NOW'),
         allowNull: false
       },
       updated_at: {
         type: DataTypes.DATE,
-        //defaultValue: Sequelize.fn('NOW'),
         allowNull: false
       }
     })

@@ -25,10 +25,12 @@ const errorHandler = (error, request, response, next) => {
       return response.status(400)
         .json(error.errors.map(e => ({ message: e.message, type: e.type })))
     }
-    case 'SequelizeDatabaseError':
-    case 'SequelizeUniqueConstraintError':
+    case 'SequelizeUniqueConstraintError': {
       error.message += ': field must be unique'
-    // eslint-disable-next-line no-fallthrough
+      return response.status(400).json({ error: error.message })
+    }
+    case 'SequelizeDatabaseError':
+    case 'SequelizeForeignKeyConstraintError':
     case 'SequelizeConnectionError': {
       return response.status(400).json({ error: error.message })
     }

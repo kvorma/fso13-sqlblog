@@ -1,18 +1,31 @@
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
 //const { Op } = require('sequelize')
-const { User, Blog } = require('../models')
+const { User, Blog, ReadingList } = require('../models')
 const logger = require('../util/logger')
 const { tokenExtractor } = require('../util/middleware')
 
 const Returning = ['username', 'realname', 'id']
 const UserView = {
-  attributes: { exclude: ['pwHash'] },
-  include: {
+  attributes: { exclude: ['pwHash', 'createdAt', 'updatedAt'] },
+  through: {
+    attributes: [],
+  },
+  include: [{
+    model: ReadingList,
+    attributes: ['read'],
+    include: {
+      model: Blog,
+      attributes: { exclude: ['userId', 'blogId', 'createdAt', 'updatedAt'] },
+    }
+  },
+  {
     model: Blog,
-    attributes: { exclude: ['userId'] }
-  }
+    attributes: { exclude: ['id', 'userId', 'blogId', 'createdAt', 'updatedAt'] },
+  }]
 }
+
+
 
 // Get All (anyone)
 
@@ -48,9 +61,10 @@ router.post('/', tokenExtractor, async (request, response, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const user = await User.findByPk(req.params.id, UserView)
+    const uid = Number(req.params.id)
+    const user = await User.findByPk(uid, UserView)
     if (user) {
-      res.json(user)
+      res.json({ user })
     } else {
       res.status(404).end()
     }

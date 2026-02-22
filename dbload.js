@@ -5,8 +5,6 @@ const { Sequelize } = require('sequelize')
 
 const sequelize = new Sequelize(DATABASE_URL, { logging: false, })
 
-const fields = ['author', 'url', 'title', 'likes', 'userId', 'createdAt', 'updatedAt']
-
 const addDate = (list) => {
   const now = new Date()
   return list.map(i => ({ ...i, createdAt: now, updatedAt: now }))
