@@ -1,37 +1,45 @@
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
-//const { Op } = require('sequelize')
+const { Op } = require('sequelize')
 const { User, Blog, ReadingList } = require('../models')
 const logger = require('../util/logger')
 const { tokenExtractor } = require('../util/middleware')
 
 const Returning = ['username', 'realname', 'id']
+const where = { read: { [Op.in]: [true, false] } }
 const UserView = {
   attributes: { exclude: ['pwHash', 'createdAt', 'updatedAt'] },
-  through: {
-    attributes: [],
-  },
   include: [{
     model: ReadingList,
     attributes: ['read'],
     include: {
       model: Blog,
       attributes: { exclude: ['userId', 'blogId', 'createdAt', 'updatedAt'] },
-    }
+    },
+    where
   },
-  {
-    model: Blog,
-    attributes: { exclude: ['id', 'userId', 'blogId', 'createdAt', 'updatedAt'] },
-  }]
+    // {
+    //   model: Blog,
+    //   attributes: { exclude: ['userId', 'blogId', 'createdAt', 'updatedAt'] },
+    // }
+  ]
 }
 
 
 
 // Get All (anyone)
 
-router.get('/', async (request, response) => {
+router.get('/', async (req, res) => {
+  switch (req?.query?.read) {
+    case 'true':
+      where.read = true
+      break
+    case 'false':
+      where.read = false
+      break
+  }
   const users = await User.findAll(UserView)
-  response.json(users)
+  res.json(users)
 })
 
 // Add new user (logged in)
@@ -62,7 +70,20 @@ router.post('/', tokenExtractor, async (request, response, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const uid = Number(req.params.id)
-    const user = await User.findByPk(uid, UserView)
+    switch (req?.query?.read) {
+      case 'true':
+        where.read = true
+        break
+      case 'false':
+        where.read = false
+        break
+    }
+    let user = await User.findByPk(uid, UserView)
+    if (user === null) {
+      user = await User.findByPk(uid, {
+        attributes: { exclude: ['pwHash', 'createdAt', 'updatedAt'] },
+      })
+    }
     if (user) {
       res.json({ user })
     } else {
