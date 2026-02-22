@@ -1,14 +1,15 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
-const User = require('../models/user')
+const { User, Session } = require('../models')
 const logger = require('../util/logger')
-const { SECRET } = require('../util/config')
+const { SECRET, TOKEN_LIFETIME } = require('../util/config')
+const { getNewId } = require('../util/auth')
+const { tokenExtractor } = require('../util/middleware')
 
 router.post('/', async (request, response, next) => {
   const { username, password } = request.body
   let user
-  console.log('LOGIN:', username, password)
   try {
     user = await User.findOne({
       where: {
@@ -29,18 +30,59 @@ router.post('/', async (request, response, next) => {
     })
   }
 
+  if (user.disabled) {
+    return response.status(403).json({
+      error: 'account closed - please contact helpdesk'
+    })
+  }
+
+  const expires = Math.floor(new Date().getTime() / 1000) + Number(TOKEN_LIFETIME)
   const userForToken = {
-    username: user.username,
+    sessionId: getNewId(),
     id: user.id,
   }
 
-  const token = jwt.sign(userForToken, SECRET)
+  const token = jwt.sign(userForToken, SECRET, { expiresIn: TOKEN_LIFETIME })
 
-  logger.debug('Login - new token:', userForToken, token)
+  try {
+    await Session.create({
+      id: userForToken.sessionId,
+      isValid: true,
+      expires: expires,
+      userId: user.id
+    })
+    logger.debug('Login - new token:', userForToken, token)
+    response
+      .status(200)
+      .send({ token, username: user.username, realname: user.realname })
+  } catch (e) {
+    console.error('Create session failed:', e.message)
+    response.status(500).json({
+      error: 'Cannot create session'
+    })
+  }
+})
 
-  response
-    .status(200)
-    .send({ token, username: user.username, realname: user.realname })
+// Logout / delete session
+
+router.delete('/:id', tokenExtractor, async (req, res) => {
+  const uid = req.decodedToken.id
+  const uuid = req.decodedToken.sessionId
+
+  if (uid !== Number(req.params.id)) {
+    return res.status(403).end()
+  }
+  try {
+    await Session.update({
+      isValid: false
+    }, {
+      where: { id: uuid }
+    })
+    res.status(200).end()
+  } catch (e) {
+    logger.error('Disabling session failed:', uuid, e.message)
+    res.status(500).end()
+  }
 })
 
 module.exports = router

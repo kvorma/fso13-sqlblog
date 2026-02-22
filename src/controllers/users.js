@@ -51,7 +51,8 @@ router.post('/', tokenExtractor, async (request, response, next) => {
   const newUser = {
     username,
     realname,
-    pwHash
+    pwHash,
+    disabled: false
   }
   logger.debug('Adding new user:', newUser)
   try {

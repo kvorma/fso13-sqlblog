@@ -1,8 +1,7 @@
-/* eslint-disable no-unused-vars */
 const router = require('express').Router()
 const Sequelize = require('sequelize')
 const { Blog } = require('../models')
-const logger = require('../util/logger')
+//const logger = require('../util/logger')
 
 //  Author summary 13.16 (anyone)
 
@@ -19,7 +18,6 @@ router.get('/', async (req, res, next) => {
     group: groupBy,
     order: sortBy
   }
-  console.log('Query:', query)
   try {
     const blogs = await Blog.findAll(query)
     res.json(blogs)

@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const { User, Blog, ReadingList } = require('../models')
-const logger = require('../util/logger')
+//const logger = require('../util/logger')
 const { tokenExtractor } = require('../util/middleware')
 
 //  Add to Reading list 13.20 (logged in)
@@ -33,7 +33,6 @@ router.put('/:id', tokenExtractor, async (req, res, next) => {
 
   try {
     const rl = await ReadingList.findByPk(bid)
-    console.log(rl)
     if (!rl) return res.status(404).end()
     if (rl.userId !== uid) return res.status(403).end()
 
