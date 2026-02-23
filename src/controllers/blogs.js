@@ -9,7 +9,7 @@ const BlogView = {
   attributes: { exclude: ['userId'] },
   include: {
     model: User,
-    attributes: ['realname']
+    attributes: ['name']
   }
 }
 
@@ -94,10 +94,10 @@ router.delete('/:id', tokenExtractor, blogFinder, async (req, res) => {
 
 router.put('/:id', blogFinder, async (req, res, next) => {
   if (req.body.likes !== undefined) {
-    req.blogEntry.likes = req.body.likes
+    req.blogEntry.likes = Number(req.body.likes)
     try {
       await req.blogEntry.save()
-      res.json(req.note)
+      res.json({ likes: req.blogEntry.likes })
     } catch (e) {
       next(e)
     }

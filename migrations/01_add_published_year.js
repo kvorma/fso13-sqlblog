@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.addColumn('blogs', 'year', {
       type: DataTypes.INTEGER,
       defaultValue: 1990,
-      allowNull: false
+      allowNull: true
     })
   },
   down: async ({ context: queryInterface }) => {

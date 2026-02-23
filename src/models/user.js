@@ -16,7 +16,7 @@ User.init({
     allowNull: false,
     validate: { isEmail: { msg: 'Username must be a valid email address!' } }
   },
-  realname: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false
   },

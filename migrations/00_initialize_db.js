@@ -44,7 +44,7 @@ module.exports = {
         unique: true,
         allowNull: false
       },
-      realname: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false
       },

@@ -54,7 +54,7 @@ router.post('/', async (request, response, next) => {
     logger.debug('Login - new token:', userForToken, token)
     response
       .status(200)
-      .send({ token, username: user.username, realname: user.realname })
+      .send({ token, username: user.username, name: user.name })
   } catch (e) {
     console.error('Create session failed:', e.message)
     response.status(500).json({

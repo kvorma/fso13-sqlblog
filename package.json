@@ -16,7 +16,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development node --watch index.js",
-    "test": "node --test --test-concurrency=1 tests/api_ch3.test.js",
+    "test": "node --test --test-concurrency=1 --test-only tests/api_ch3.test.js",
     "test:start": "NODE_ENV=test PORT=3001 node index.js",
     "migration:down": "node ./rollback.js"
   },

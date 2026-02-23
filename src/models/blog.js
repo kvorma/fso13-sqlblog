@@ -30,7 +30,7 @@ Blog.init(
     },
     year: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       validate: {
         webYear(y) {
           if (y < 1991 || y > new Date().getFullYear()) {
