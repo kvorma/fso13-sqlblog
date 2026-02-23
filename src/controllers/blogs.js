@@ -1,9 +1,9 @@
 const router = require('express').Router()
 //const qs = require('qs)')
 const { Op } = require('sequelize')
-const { tokenExtractor } = require('../util/middleware')
+const { blogFinder, tokenExtractor } = require('../util/middleware')
 const { Blog, User } = require('../models')
-const logger = require('../util/logger')
+//const logger = require('../util/logger')
 
 const BlogView = {
   attributes: { exclude: ['userId'] },
@@ -13,21 +13,6 @@ const BlogView = {
   }
 }
 
-const blogFinder = async (req, res, next) => {
-  logger.debug2('blogFinder:', req.params.id)
-  try {
-    const blog = await Blog.findByPk(req.params.id)
-    if (blog) {
-      logger.debug2('blogFinder:', JSON.stringify(blog, null, 2))
-      req.blogEntry = blog
-      next()
-    } else {
-      res.status(404).end()
-    }
-  } catch (e) {
-    next(e)
-  }
-}
 //  Get All (anyone)
 
 router.get('/', async (req, res, next) => {

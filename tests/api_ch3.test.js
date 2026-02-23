@@ -66,7 +66,7 @@ describe('Users API', () => {
   it('users have correct properties', async () => {
     const response = await axios.get(`${baseUrl}/users`)
     const user = response.data[0]
-    console.log(user)
+    
     assert.ok(user.id)
     assert.ok(user.username)
     assert.ok(user.name)
@@ -83,7 +83,7 @@ describe('Authors API', () => {
 
   it('author stats have correct structure', async () => {
     const response = await axios.get(`${baseUrl}/authors`)
-
+    
     if (response.data.length > 0) {
       const author = response.data[0]
       assert.ok(author.author)

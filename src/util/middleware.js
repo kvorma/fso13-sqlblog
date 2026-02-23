@@ -5,7 +5,7 @@
 const jwt = require('jsonwebtoken')
 const logger = require('./logger')
 const { SECRET } = require('./config')
-const { Session } = require('../models')
+const { Blog, Session } = require('../models')
 
 const requestLogger = (request, response, next) => {
   logger.debug('Method:', request.method)
@@ -22,6 +22,8 @@ const unknownEndpoint = (request, response) => {
 const errorHandler = (error, request, response, next) => {
   logger.debug('errorHandler:', error.name, ' : ', error.message)
   switch (error.name) {
+    case 'SequelizeForeignKeyConstraintError':
+      return response.status(404).json({ error: error.message })
     case 'SequelizeValidationError': {
       return response.status(400)
         .json(error.errors.map(e => ({ message: e.message, type: e.type })))
@@ -31,7 +33,6 @@ const errorHandler = (error, request, response, next) => {
       return response.status(400).json({ error: error.message })
     }
     case 'SequelizeDatabaseError':
-    case 'SequelizeForeignKeyConstraintError':
     case 'SequelizeConnectionError': {
       return response.status(400).json({ error: error.message })
     }
@@ -40,6 +41,22 @@ const errorHandler = (error, request, response, next) => {
     }
   }
   next(error)
+}
+
+const blogFinder = async (req, res, next) => {
+  logger.debug2('blogFinder:', req.params.id)
+  try {
+    const blog = await Blog.findByPk(req.params.id)
+    if (blog) {
+      logger.debug2('blogFinder:', JSON.stringify(blog, null, 2))
+      req.blogEntry = blog
+      next()
+    } else {
+      res.status(404).end()
+    }
+  } catch (e) {
+    next(e)
+  }
 }
 
 const mockExtractor = (req, res, next) => { next() }
@@ -69,6 +86,7 @@ module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
+  blogFinder,
   tokenExtractor,
   mockExtractor,
 }

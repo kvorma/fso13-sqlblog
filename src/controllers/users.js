@@ -1,45 +1,72 @@
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
 const { Op } = require('sequelize')
-const { User, Blog, ReadingList } = require('../models')
+const { User, Blog, Reading } = require('../models')
 const logger = require('../util/logger')
 const { tokenExtractor, mockExtractor } = require('../util/middleware')
 const { TEST } = require('../util/config')
 
 const Returning = ['username', 'name', 'id']
-const where = { read: { [Op.in]: [true, false] } }
 const UserView = {
-  attributes: { exclude: ['pwHash', 'createdAt', 'updatedAt'] },
-  include: [{
-    model: ReadingList,
-    attributes: ['read'],
-    include: {
-      model: Blog,
-      attributes: { exclude: ['userId', 'blogId', 'createdAt', 'updatedAt'] },
-    },
-    where
-  }]
+  attributes: { exclude: ['pwHash', 'disabled', 'createdAt', 'updatedAt'] },
 }
 const UserList = {
-  attributes: { exclude: ['pwHash', 'createdAt', 'updatedAt'] },
+  ...UserView,
   include: {
     model: Blog,
     attributes: { exclude: ['userId', 'blogId', 'createdAt', 'updatedAt'] },
   }
 }
 
+// get single user (anyone)
+
+router.get('/:id', async (req, res, next) => {
+  const uid = Number(req.params.id)
+  const cond = [
+    { read: { [Op.in]: [true, false] } },
+    { user_id: uid }
+  ]
+
+  switch (req?.query?.read) {
+    case 'true':
+      cond[0].read = true
+      break
+    case 'false':
+      cond[0].read = false
+      break
+  }
+  try {
+    const u = await User.findByPk(uid, UserView)
+    if (u === null) {
+      return res.status(404).end()
+    }
+    const json = { id: u.id, name: u.name, username: u.username }
+    const rl = await Reading.findAll({
+      attributes: ['read', 'id'],
+      through: { attributes: [] },
+      include: {
+        model: Blog,
+        attributes: ['id', 'title', 'author', 'url'],
+      },
+      where: cond
+    })
+    console.log('RL=', rl)
+    json.readings = rl.map(r => ({
+      id: r.blog.id,
+      title: r.blog.title,
+      author: r.blog.author,
+      url: r.blog.url,
+      reading_list: { read: r.read, id: r.id }
+    })) || []
+    res.json(json)
+  } catch (e) {
+    next(e)
+  }
+})
 
 // Get All (anyone)
 
 router.get('/', async (req, res) => {
-  switch (req?.query?.read) {
-    case 'true':
-      where.read = true
-      break
-    case 'false':
-      where.read = false
-      break
-  }
   const users = await User.findAll(UserList)
   res.json(users)
 })
@@ -62,34 +89,9 @@ router.post('/', TEST ? mockExtractor : tokenExtractor, async (req, res, next) =
 
     res.status(201).json({
       id: savedUser.id,
+      name: name,
+      username: username
     })
-  } catch (e) {
-    next(e)
-  }
-})
-
-// get single user (anyone)
-
-router.get('/:id', async (req, res, next) => {
-  try {
-    const uid = Number(req.params.id)
-    switch (req?.query?.read) {
-      case 'true':
-        where.read = true
-        break
-      case 'false':
-        where.read = false
-        break
-    }
-    let user = await User.findByPk(uid, UserView)
-    if (user === null) {
-      user = await User.findByPk(uid, UserList)
-    }
-    if (user) {
-      res.json({ user })
-    } else {
-      res.status(404).end()
-    }
   } catch (e) {
     next(e)
   }

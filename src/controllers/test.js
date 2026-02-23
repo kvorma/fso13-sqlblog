@@ -4,7 +4,7 @@ const logger = require('../util/logger')
 
 // clear database, testing only
 
-const tables = ['sessions', 'blogs', 'users', 'reading_lists']
+const tables = ['sessions', 'readings', 'blogs', 'users']
 
 router.post('/', async (req, res) => {
   for (let t of tables) {

@@ -5,7 +5,6 @@ const { User, Session } = require('../models')
 const logger = require('../util/logger')
 const { SECRET, TOKEN_LIFETIME } = require('../util/config')
 const { getNewId } = require('../util/auth')
-const { tokenExtractor, mockExtractor } = require('../util/middleware')
 
 router.post('/', async (request, response, next) => {
   const { username, password } = request.body
@@ -60,28 +59,6 @@ router.post('/', async (request, response, next) => {
     response.status(500).json({
       error: 'Cannot create session'
     })
-  }
-})
-
-// Logout / delete session
-
-router.delete('/:id', tokenExtractor, async (req, res) => {
-  const uid = req.decodedToken.id
-  const uuid = req.decodedToken.sessionId
-
-  if (uid !== Number(req.params.id)) {
-    return res.status(403).end()
-  }
-  try {
-    await Session.update({
-      isValid: false
-    }, {
-      where: { id: uuid }
-    })
-    res.status(200).end()
-  } catch (e) {
-    logger.error('Disabling session failed:', uuid, e.message)
-    res.status(500).end()
   }
 })
 

@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize')
 
 module.exports = {
   up: async ({ context: queryInterface }) => {
-    await queryInterface.createTable('reading_lists', {
+    await queryInterface.createTable('readings', {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -32,13 +32,13 @@ module.exports = {
         references: { model: 'blogs', key: 'id' },
       },
     })
-    await queryInterface.addConstraint('reading_lists', {
+    await queryInterface.addConstraint('readings', {
       fields: ['user_id', 'blog_id'],
       type: 'unique',
       name: 'tag_reading'
     })
   },
   down: async ({ context: queryInterface }) => {
-    await queryInterface.dropTable('reading_lists')
+    await queryInterface.dropTable('readings')
   },
 }
