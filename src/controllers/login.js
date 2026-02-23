@@ -5,7 +5,7 @@ const { User, Session } = require('../models')
 const logger = require('../util/logger')
 const { SECRET, TOKEN_LIFETIME } = require('../util/config')
 const { getNewId } = require('../util/auth')
-const { tokenExtractor } = require('../util/middleware')
+const { tokenExtractor, mockExtractor } = require('../util/middleware')
 
 router.post('/', async (request, response, next) => {
   const { username, password } = request.body

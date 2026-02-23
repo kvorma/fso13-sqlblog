@@ -3,7 +3,7 @@ const middleware = require('./util/middleware')
 
 const app = express()
 
-const { PORT } = require('./util/config')
+const { PORT, TEST } = require('./util/config')
 const { connectToDatabase } = require('./util/db')
 
 const blogsRouter = require('./controllers/blogs')
@@ -14,6 +14,12 @@ const readingListRouter = require('./controllers/readingLists')
 
 app.use(express.json())
 app.use(middleware.requestLogger)
+
+if (TEST) {
+  const testRouter = require('./controllers/test')
+  app.use('/api/reset', testRouter)
+  app.get('/', async (_req, res) => { res.send('ok') })
+}
 
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)

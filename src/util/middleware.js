@@ -42,6 +42,8 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
+const mockExtractor = (req, res, next) => { next() }
+
 const tokenExtractor = async (req, res, next) => {
   const authorization = req.get('authorization')
   logger.debug2('tokenExtractor:', authorization)
@@ -67,5 +69,6 @@ module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
+  mockExtractor,
 }

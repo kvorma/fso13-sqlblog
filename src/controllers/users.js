@@ -3,7 +3,8 @@ const router = require('express').Router()
 const { Op } = require('sequelize')
 const { User, Blog, ReadingList } = require('../models')
 const logger = require('../util/logger')
-const { tokenExtractor } = require('../util/middleware')
+const { tokenExtractor, mockExtractor } = require('../util/middleware')
+const { TEST } = require('../util/config')
 
 const Returning = ['username', 'realname', 'id']
 const where = { read: { [Op.in]: [true, false] } }
@@ -44,8 +45,8 @@ router.get('/', async (req, res) => {
 
 // Add new user (logged in)
 
-router.post('/', tokenExtractor, async (request, response, next) => {
-  const { username, realname, password } = request.body
+router.post('/', TEST ? mockExtractor : tokenExtractor, async (req, res, next) => {
+  const { username, realname, password } = req.body
   const saltRounds = 10
   const pwHash = await bcrypt.hash(password, saltRounds)
   const newUser = {
@@ -58,7 +59,7 @@ router.post('/', tokenExtractor, async (request, response, next) => {
   try {
     const savedUser = await User.create(newUser, { returning: Returning })
 
-    response.status(201).json({
+    res.status(201).json({
       id: savedUser.id,
     })
   } catch (e) {

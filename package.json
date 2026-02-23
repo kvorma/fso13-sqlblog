@@ -16,7 +16,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development node --watch index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test --test-concurrency=1 tests/api_ch3.test.js",
+    "test:start": "NODE_ENV=test PORT=3001 node index.js",
     "migration:down": "node ./rollback.js"
   },
   "dependencies": {
@@ -27,10 +28,12 @@
     "pg": "^8.18.0",
     "qs": "^6.15.0",
     "sequelize": "^6.37.7",
-    "umzug": "^3.8.2"
+    "umzug": "^3.8.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "axios": "^1.13.5",
     "eslint": "^10.0.0",
     "globals": "^17.3.0",
     "sequelize-cli": "^6.6.5"
