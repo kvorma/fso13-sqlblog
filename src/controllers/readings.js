@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const { User, Blog, Reading } = require('../models')
 const { TEST } = require('../util/config')
-const { tokenExtractor, mockExtractor, blogFinder } = require('../util/middleware')
+const { tokenExtractor, mockExtractor } = require('../util/middleware')
 
 const Returning = ['blog_id', 'user_id', 'read', 'id']
 
